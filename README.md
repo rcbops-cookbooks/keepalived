@@ -129,7 +129,7 @@ override_attributes(
         :track_script => 'chk_haproxy',
         :nopreempt => false,
         :advert_int => 1,
-        :auth_type => 'pass'
+        :auth_type => 'pass',
         :auth_pass => 'secret'
       }
     }
