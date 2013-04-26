@@ -91,6 +91,7 @@ within the instance hash:
 * `:priorities => {}`             # Node name mapped priorities
 * `:track_script => 'check_name'` # Name of check script in use for instance
 * `:nopreempt => false`           # Do not preempt
+* `:preempt_delay => 5`           # Seconds after startup until preemption
 * `:advert_int => 1`              # Set advert_int
 * `:auth_type => nil`             # Enable authentication (:pass or :ah)
 * `:auth_pass => 'secret'`        # Password used for authentication
@@ -128,7 +129,7 @@ override_attributes(
         :track_script => 'chk_haproxy',
         :nopreempt => false,
         :advert_int => 1,
-        :auth_type => :pass,
+        :auth_type => 'pass',
         :auth_pass => 'secret'
       }
     }

@@ -57,6 +57,7 @@ node['keepalived']['instances'].each_pair do |name, instance|
     virtual_router_id node['keepalived']['instance_defaults']['virtual_router_id']
     # state node['keepalived']['instance_defaults']['state']
     noprempt false
+    # preempt_delay 300
     priority node['keepalived']['instance_defaults']['priority']
     virtual_ipaddress Array(instance['ip_addresses'])
     if instance['track_script']
