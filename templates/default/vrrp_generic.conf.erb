@@ -9,6 +9,8 @@ vrrp_instance <%= @name.upcase %> {
   priority <%= @params["priority"] %>
   <% if @params["nopreempt"] %>
   nopreempt
+  <% else %>
+  preempt_delay <%= @params["preempt_delay"] %>
   <% end -%>
   <% if @params.has_key?("advert_int") %>
   advert_int <%= @params["advert_int"] %>
@@ -18,6 +20,7 @@ vrrp_instance <%= @name.upcase %> {
     auth_type <%= @params["auth_type"].to_s.upcase %>
     auth_pass <%= @params["auth_pass"] %>
   }
+
   <% end -%>
   virtual_ipaddress {
     <% @params['virtual_ipaddress'].each do |address| %>
@@ -25,6 +28,7 @@ vrrp_instance <%= @name.upcase %> {
     <% end %>
   }
   <% if @params.has_key?("track_script") %>
+
   track_script {
     <%= @params["track_script"] %>
   }
