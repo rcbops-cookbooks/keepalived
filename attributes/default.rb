@@ -4,7 +4,7 @@
 #
 
 default["keepalived"]["shared_address"] = false
-default["keepalived"]["global"]["notification_emails"] = "admin@example.com"
+default["keepalived"]["global"]["notification_emails"] = nil
 default["keepalived"]["global"]["notification_email_from"] = "keepalived@#{node["domain"] || "example.com"}"
 default["keepalived"]["global"]["smtp_server"] = "127.0.0.1"
 default["keepalived"]["global"]["smtp_connect_timeout"] = 30

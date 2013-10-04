@@ -24,6 +24,10 @@ package "keepalived" do
   action :install
 end
 
+package "conntrack" do
+  action :install
+end
+
 execute "reload-keepalived" do
   command "#{node['keepalived']['service_bin']} keepalived reload"
   action :nothing
@@ -48,6 +52,13 @@ template "keepalived.conf" do
   group "root"
   mode 0644
   notifies :run, "execute[reload-keepalived]", :immediately
+end
+
+cookbook_file "/etc/keepalived/update_route.sh" do
+    source "update_route.sh"
+    mode 0700
+    group "root"
+    owner "root"
 end
 
 node["keepalived"]["check_scripts"].each_pair do |name, script|
