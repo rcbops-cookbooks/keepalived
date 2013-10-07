@@ -20,8 +20,18 @@
 include_recipe "sysctl::default"
 include_recipe "osops-utils::packages"
 
+platform_options=node["keepalived"]["platform"]
+
 package "keepalived" do
   action :install
+end
+
+# install conntrack packages.
+platform_options["conntrack_packages"].each do |pkg|
+  package pkg do
+    action node["osops"]["do_package_upgrades"] == true ? :upgrade : :install
+    options platform_options["package_overrides"]
+  end
 end
 
 execute "reload-keepalived" do
@@ -48,6 +58,13 @@ template "keepalived.conf" do
   group "root"
   mode 0644
   notifies :run, "execute[reload-keepalived]", :immediately
+end
+
+cookbook_file "/etc/keepalived/update_route.sh" do
+    source "update_route.sh"
+    mode 0700
+    group "root"
+    owner "root"
 end
 
 node["keepalived"]["check_scripts"].each_pair do |name, script|

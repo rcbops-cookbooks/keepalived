@@ -39,4 +39,7 @@ vrrp_instance <%= @name.upcase %> {
   <% if @params.has_key?("notify_fault") %>
   notify_fault "<%=@params["notify_fault"] %>"
   <% end -%>
+  <% if @params.has_key?("notify_stop") %>
+  notify_stop "<%=@params["notify_stop"] %>"
+  <% end -%>
 }
