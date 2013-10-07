@@ -21,7 +21,7 @@ default["keepalived"]["vs_defaults"]["delay_loop"] = 15
 default["keepalived"]["vs_defaults"]["protocol"] = "tcp"  # Valid options are tcp or udp
 
 case platform
-when "fedora", "redhat", "centos"
+when "fedora", "redhat", "centos", "scientific", "amazon"
   default["keepalived"]["platform"] = {
     "conntrack_packages" => ["conntrack-tools"]
   }
