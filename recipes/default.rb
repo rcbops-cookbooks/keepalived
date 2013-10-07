@@ -20,12 +20,18 @@
 include_recipe "sysctl::default"
 include_recipe "osops-utils::packages"
 
+platform_options=node["keepalived"]["platform"]
+
 package "keepalived" do
   action :install
 end
 
-package "conntrack" do
-  action :install
+# install conntrack packages.
+platform_options["conntrack_packages"].each do |pkg|
+  package pkg do
+    action node["osops"]["do_package_upgrades"] == true ? :upgrade : :install
+    options platform_options["package_overrides"]
+  end
 end
 
 execute "reload-keepalived" do
