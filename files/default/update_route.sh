@@ -39,8 +39,25 @@ if [[ -z $src ]]; then _errexit "No IP found on $iface. Expected at least $vip."
 if [[ $src == $vip ]]; then _errexit "Primary IP $src on $iface is VIP. A non-VIP primary IP must exist."; fi
 
 _add_nat_rules() {
-  iptables -t nat -I PREROUTING 1 -d $vip/32 -j DNAT --to-destination $src
-  iptables -t nat -I OUTPUT 1 -d $vip/32 -o lo -j DNAT --to-destination $src
+  _log "checking for PREROUTING rule $vip to $src"
+  iptables -t nat -C PREROUTING -d -d $vip/32 -j DNAT --to-destination $src
+  RET=$?
+  if [[ $RET != 0 ]]; then
+      _log "adding PREROUTING rule for $vip to $src"
+      iptables -t nat -I PREROUTING 1 -d $vip/32 -j DNAT --to-destination $src
+  else
+      _log "PREROUTING rule for $vip to $src already exists"
+  fi
+
+  _log "checking for OUTPUT rule $vip to $src"
+  iptables -t nat -C OUTPUT -d $vip/32 -o lo -j DNAT --to-destination $src
+  RET=$?
+  if [[ $RET != 0 ]]; then
+      _log "adding OUTPUT rule for $vip to $src"
+      iptables -t nat -I OUTPUT 1 -d $vip/32 -o lo -j DNAT --to-destination $src
+  else
+      _log "OUTPUT rule for $vip to $src already exists"
+  fi
 }
 
 _rm_nat_rules() {
@@ -53,14 +70,12 @@ case $action in
   "add")
     _log "Merging local route for $vip with source $src."
     ip r r table local local $vip dev $iface src $src # Replace
-    _rm_nat_rules
     _add_nat_rules
     ;;
   "del")
     _log "Deleting local route for $vip with source $src."
     ip r d table local local $vip dev $iface src $src # Delete
     conntrack -D -d $vip
-    _rm_nat_rules
     ;;
   *)
     _help
