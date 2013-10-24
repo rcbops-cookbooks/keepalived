@@ -40,7 +40,7 @@ if [[ $src == $vip ]]; then _errexit "Primary IP $src on $iface is VIP. A non-VI
 
 _add_nat_rules() {
   _log "checking for PREROUTING rule $vip to $src"
-  iptables -t nat -C PREROUTING -d -d $vip/32 -j DNAT --to-destination $src
+  iptables -t nat -C PREROUTING -d $vip/32 -j DNAT --to-destination $src
   RET=$?
   if [[ $RET != 0 ]]; then
       _log "adding PREROUTING rule for $vip to $src"
