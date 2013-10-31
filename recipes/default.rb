@@ -22,21 +22,16 @@ include_recipe "osops-utils::packages"
 
 platform_options=node["keepalived"]["platform"]
 
-package "keepalived" do
-  action :install
-end
-
-# install conntrack packages.
-platform_options["conntrack_packages"].each do |pkg|
+# install netfilter things.
+platform_options["required_packages"].each do |pkg|
   package pkg do
     action node["osops"]["do_package_upgrades"] == true ? :upgrade : :install
-    options platform_options["package_overrides"]
+    options platform_options["package_options"]
   end
 end
 
-execute "reload-keepalived" do
-  command "#{node['keepalived']['service_bin']} keepalived reload"
-  action :nothing
+package "keepalived" do
+  action :install
 end
 
 directory "/etc/keepalived/conf.d" do
@@ -98,3 +93,10 @@ service "keepalived" do
   supports :restart => true, :status => true
   action [:enable, :start]
 end
+
+# Add an execute resource for keepalived providers to notify
+execute "reload-keepalived" do
+  command "#{node['keepalived']['service_bin']} keepalived reload"
+  action :nothing
+end
+
