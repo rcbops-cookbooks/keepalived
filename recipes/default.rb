@@ -55,8 +55,8 @@ template "keepalived.conf" do
   notifies :run, "execute[reload-keepalived]", :immediately
 end
 
-cookbook_file "/etc/keepalived/update_route.sh" do
-    source "update_route.sh"
+cookbook_file "/etc/keepalived/notify.sh" do
+    source "notify.sh"
     mode 0700
     group "root"
     owner "root"
