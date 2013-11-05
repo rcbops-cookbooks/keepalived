@@ -4,7 +4,7 @@
 #
 
 default["keepalived"]["shared_address"] = false
-default["keepalived"]["global"]["notification_emails"] = "admin@example.com"
+default["keepalived"]["global"]["notification_emails"] = nil
 default["keepalived"]["global"]["notification_email_from"] = "keepalived@#{node["domain"] || "example.com"}"
 default["keepalived"]["global"]["smtp_server"] = "127.0.0.1"
 default["keepalived"]["global"]["smtp_connect_timeout"] = 30
@@ -19,6 +19,18 @@ default["keepalived"]["vs_defaults"]["lb_algo"] = "rr"
 default["keepalived"]["vs_defaults"]["lb_kind"] = "nat"  # Valid options are nat, dr, and tun
 default["keepalived"]["vs_defaults"]["delay_loop"] = 15
 default["keepalived"]["vs_defaults"]["protocol"] = "tcp"  # Valid options are tcp or udp
+
+case platform
+when "fedora", "redhat", "centos", "scientific", "amazon"
+  default["keepalived"]["platform"] = {
+    "required_packages" => ["iptables", "iptables-ipv6", "conntrack-tools"]
+  }
+when "ubuntu", "debian"
+   default["keepalived"]["platform"] = {
+    # ubuntu iptables package includes ip6tables
+    "required_packages" => ["iptables", "conntrack"]
+  }
+end
 
 if platform_family?("rhel")
   default["keepalived"]["service_bin"] = "/sbin/service"
