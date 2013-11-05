@@ -10,8 +10,10 @@ logger -t keepalived-notify-$action "Ensuring namespace, veth pair and sysctls"
 ip netns add vips
 ip link add vip-br type veth peer name vip-ns netns vips
 ip link set vip-br up
+ip route add 169.254.123.45/32 dev vip-br
 ip netns exec vips ip link set lo up
 ip netns exec vips ip link set vip-ns up
+ip netns exec vips ip addr add 169.254.123.45/16 dev vip-ns
 ip netns exec vips sysctl net.ipv4.ip_forward=1
 sysctl net.ipv4.conf.${iface}.proxy_arp=1
 sysctl net.ipv4.conf.vip-br.proxy_arp=1
