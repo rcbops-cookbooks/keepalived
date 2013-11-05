@@ -12,10 +12,12 @@ ip link add vip-br type veth peer name vip-ns netns vips
 ip link set vip-br up
 ip netns exec vips ip link set lo up
 ip netns exec vips ip link set vip-ns up
+ip netns exec vips sysctl net.ipv4.ip_forward=1
 sysctl net.ipv4.conf.${iface}.proxy_arp=1
 sysctl net.ipv4.conf.vip-br.proxy_arp=1
 sysctl net.ipv4.conf.lo.arp_ignore=1
 sysctl net.ipv4.conf.lo.arp_announce=2
+sysctl net.ipv4.ip_forward=1
 
 case $action in
   add)
