@@ -6,7 +6,7 @@ vip=$3
 src=$4
 
 # Idempotently make sure namespace/veth/sysctls are setup
-logger
+logger -t keepalived-notify-$action "Ensuring namespace, veth pair and sysctls"
 ip netns add vips
 ip link add vip-br type veth peer name vip-ns netns vips
 ip link set vip-br up
