@@ -57,5 +57,9 @@ case $action in
     logger -t keepalived-notify-$action "Deleting VIP NATs from namespace for $vip"
     ip netns exec vips iptables -t nat -D PREROUTING -d $vip/32 -j DNAT --to-dest $src
     ip netns exec vips iptables -t nat -D POSTROUTING -m conntrack --ctstate DNAT --ctorigdst $vip/32 -j SNAT --to-source $vip
+
+    logger -t keepalived-notify-$action "Flushing route and ARP caches for $vip"
+    ip route flush cache
+    ip neigh flush cache
     ;;
 esac
