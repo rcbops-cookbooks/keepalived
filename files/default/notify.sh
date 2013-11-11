@@ -30,8 +30,8 @@ case $action in
     ip route add $vip/32 dev vip-br src $src
 
     logger -t keepalived-notify-$action "Adding VIP NATs to namespace for $vip"
-    ip netns exec vips iptables -t nat -A PREROUTING -d $vip/32 -j DNAT --to-dest $src
-    ip netns exec vips iptables -t nat -A POSTROUTING -m conntrack --ctstate DNAT --ctorigdst $vip/32 -j SNAT --to-source $vip
+    while ! ip netns exec vips iptables -t nat -A PREROUTING -d $vip/32 -j DNAT --to-dest $src; do sleep 1; done
+    while ! ip netns exec vips iptables -t nat -A POSTROUTING -m conntrack --ctstate DNAT --ctorigdst $vip/32 -j SNAT --to-source $vip; do sleep 1; done
 
     logger -t keepalived-notify-$action "Adding VIP address to namespace for $vip"
     ip netns exec vips ip addr add $vip/32 dev vip-ns
