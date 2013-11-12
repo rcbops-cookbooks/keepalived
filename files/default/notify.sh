@@ -34,10 +34,13 @@ case $action in
 
     logger -t keepalived-notify-$action "Adding VIP address to namespace for $vip"
     ip netns exec vips ip addr add $vip/32 dev vip-ns
-    
+
     logger -t keepalived-notify-$action "Gratarping namespaced interface for $vip"
     ip netns exec vips ip link set vip-ns down
     ip netns exec vips ip link set vip-ns up
+
+    logger -t keepalived-notify-$action "Gratarping management interface for $vip"
+    arping -c 3 -A -I $iface $vip
     ;;
   haproxy)
     logger -t keepalived-notify-$action "Adding VIP address to lo for $vip"
@@ -45,10 +48,13 @@ case $action in
 
     logger -t keepalived-notify-$action "Adding VIP address to namespace for $vip"
     ip netns exec vips ip addr add $vip/32 dev vip-ns
-    
+
     logger -t keepalived-notify-$action "Gratarping namespaced interface for $vip"
     ip netns exec vips ip link set vip-ns down
     ip netns exec vips ip link set vip-ns up
+
+    logger -t keepalived-notify-$action "Gratarping management interface for $vip"
+    arping -c 3 -A -I $iface $vip
     ;;
   del)
     logger -t keepalived-notify-$action "Deleting VIP route for $vip"
