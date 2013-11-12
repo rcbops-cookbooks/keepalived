@@ -17,10 +17,10 @@ ip netns exec vips ip link set vip-ns up
 ip netns exec vips ip addr add 169.254.123.2/30 dev vip-ns
 ip netns exec vips ip route add default via 169.254.123.1 dev vip-ns src 169.254.123.2
 ip netns exec vips sysctl net.ipv4.ip_forward=1
+ip netns exec vips sysctl net.ipv4.conf.vip-ns.arp_notify=1
 
 sysctl net.ipv4.conf.${iface}.proxy_arp=1
 sysctl net.ipv4.conf.vip-br.proxy_arp=1
-sysctl net.ipv4.conf.lo.proxy_arp=1
 sysctl net.ipv4.conf.lo.arp_ignore=1
 sysctl net.ipv4.conf.lo.arp_announce=2
 sysctl net.ipv4.ip_forward=1
@@ -36,6 +36,10 @@ case $action in
 
     logger -t keepalived-notify-$action "Adding VIP address to namespace for $vip"
     ip netns exec vips ip addr add $vip/32 dev vip-ns
+    
+    logger -t keepalived-notify-$action "Gratarping namespaced interface for $vip"
+    ip netns exec vips ip link set vip-ns down
+    ip netns exec vips ip link set vip-ns up
     ;;
   haproxy)
     logger -t keepalived-notify-$action "Adding VIP address to lo for $vip"
@@ -43,6 +47,10 @@ case $action in
 
     logger -t keepalived-notify-$action "Adding VIP address to namespace for $vip"
     ip netns exec vips ip addr add $vip/32 dev vip-ns
+    
+    logger -t keepalived-notify-$action "Gratarping namespaced interface for $vip"
+    ip netns exec vips ip link set vip-ns down
+    ip netns exec vips ip link set vip-ns up
     ;;
   del)
     logger -t keepalived-notify-$action "Deleting VIP route for $vip"
