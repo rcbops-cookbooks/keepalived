@@ -20,6 +20,7 @@ ip netns exec vips sysctl net.ipv4.ip_forward=1
 
 sysctl net.ipv4.conf.${iface}.proxy_arp=1
 sysctl net.ipv4.conf.vip-br.proxy_arp=1
+sysctl net.ipv4.conf.lo.proxy_arp=1
 sysctl net.ipv4.conf.lo.arp_ignore=1
 sysctl net.ipv4.conf.lo.arp_announce=2
 sysctl net.ipv4.ip_forward=1
