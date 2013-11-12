@@ -13,9 +13,7 @@ ip link set vip-br up
 ip addr add 169.254.123.1/30 dev vip-br
 
 ip netns exec vips ip link set lo up
-ip netns exec vips ip link set vip-ns up
 ip netns exec vips ip addr add 169.254.123.2/30 dev vip-ns
-ip netns exec vips ip route add default via 169.254.123.1 dev vip-ns src 169.254.123.2
 ip netns exec vips sysctl net.ipv4.ip_forward=1
 ip netns exec vips sysctl net.ipv4.conf.vip-ns.arp_notify=1
 
@@ -67,3 +65,6 @@ case $action in
     ip netns exec vips iptables -t nat -D POSTROUTING -m conntrack --ctstate DNAT --ctorigdst $vip/32 -j SNAT --to-source $vip
     ;;
 esac
+
+# Re-add default route in case interface was cycled
+ip netns exec vips ip route add default via 169.254.123.1 dev vip-ns src 169.254.123.2
