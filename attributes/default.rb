@@ -23,12 +23,12 @@ default["keepalived"]["vs_defaults"]["protocol"] = "tcp"  # Valid options are tc
 case platform
 when "fedora", "redhat", "centos", "scientific", "amazon"
   default["keepalived"]["platform"] = {
-    "required_packages" => ["iptables", "iptables-ipv6", "conntrack-tools"]
+    "required_packages" => ["iptables", "iptables-ipv6"]
   }
 when "ubuntu", "debian"
    default["keepalived"]["platform"] = {
     # ubuntu iptables package includes ip6tables
-    "required_packages" => ["iptables", "conntrack"]
+    "required_packages" => ["iptables"]
   }
 end
 
