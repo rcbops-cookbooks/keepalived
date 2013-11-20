@@ -34,6 +34,12 @@ package "keepalived" do
   action :install
 end
 
+# upgrade this package here to make sure we have the latest version that supports
+# network namespaces.
+package "iproute" do
+  action :upgrade
+end
+
 directory "/etc/keepalived/conf.d" do
   action :create
   owner "root"
@@ -52,7 +58,12 @@ template "keepalived.conf" do
   owner "root"
   group "root"
   mode 0644
-  notifies :run, "execute[reload-keepalived]", :immediately
+  notifies :restart, "service[keepalived]", :immediately
+end
+
+service "keepalived" do
+  supports :restart => true, :status => true
+  action :enable
 end
 
 cookbook_file "/etc/keepalived/notify.sh" do
@@ -87,11 +98,6 @@ node["keepalived"]["instances"].each_pair do |name, instance|
     end
     action :create
   end
-end
-
-service "keepalived" do
-  supports :restart => true, :status => true
-  action [:enable, :start]
 end
 
 # Add an execute resource for keepalived providers to notify
