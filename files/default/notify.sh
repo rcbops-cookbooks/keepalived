@@ -4,6 +4,7 @@ action=$1
 iface=$2
 vip=$3
 src=$4
+mgmt=$5
 
 ns="vips"
 brif="vip-br"
@@ -14,7 +15,7 @@ logger -t keepalived-notify-$action "Ensuring namespace, veth pair and sysctls"
 ip netns add $ns
 ip link add $brif type veth peer name $nsif netns $ns
 ip link set $brif up
-ip addr add 169.254.123.1/30 dev $brif
+ip addr add 169.254.123.1/30 dev lo
 
 ip netns exec $ns ip link set lo up
 ip netns exec $ns ip addr add 169.254.123.2/30 dev $nsif
@@ -47,9 +48,17 @@ case $action in
     logger -t keepalived-notify-$action "Gratarping management interface for $vip"
     arping -c 3 -A -I $iface $vip
     ;;
+  haproxy)
+    logger -t keepalived-notify-$action "Adding VIP route for $vip"
+    ip route add $vip/32 dev $brif src $mgmt
+    ;;
   del)
     logger -t keepalived-notify-$action "Deleting VIP route for $vip"
-    ip route del $vip/32 dev $brif src $src
+    if [[ -n $mgmt ]]; then
+      ip route del $vip/32 dev $brif src $mgmt
+    else
+      ip route del $vip/32 dev $brif src $src
+    fi
 
     logger -t keepalived-notify-$action "Deleting VIP address from namespace for $vip"
     ip netns exec $ns ip addr del $vip/32 dev $nsif
