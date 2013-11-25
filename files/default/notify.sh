@@ -29,16 +29,13 @@ sysctl net.ipv4.conf.lo.arp_announce=2
 sysctl net.ipv4.ip_forward=1
 
 case $action in
-  add)
+  add|haproxy)
     logger -t keepalived-notify-$action "Adding VIP address to namespace for $vip"
     ip netns exec $ns ip addr add $vip/32 dev $nsif
 
     logger -t keepalived-notify-$action "Adding VIP NATs to namespace for $vip"
     while ! ip netns exec $ns iptables -t nat -A PREROUTING -d $vip/32 -j DNAT --to-dest $src; do sleep 1; done
     while ! ip netns exec $ns iptables -t nat -A POSTROUTING -m conntrack --ctstate DNAT --ctorigdst $vip/32 -j SNAT --to-source $vip; do sleep 1; done
-
-    logger -t keepalived-notify-$action "Adding VIP route for $vip"
-    ip route add $vip/32 dev $brif src $src
 
     logger -t keepalived-notify-$action "Gratarping namespaced interface for $vip"
     ip netns exec $ns ip link set $nsif down
@@ -49,6 +46,10 @@ case $action in
 
     logger -t keepalived-notify-$action "Gratarping management interface for $vip"
     arping -c 3 -A -I $iface $vip
+    ;;& # Check remaining patterns
+  add)
+    logger -t keepalived-notify-$action "Adding VIP route for $vip"
+    ip route add $vip/32 dev $brif src $src
     ;;
   haproxy)
     logger -t keepalived-notify-$action "Adding VIP route for $vip"
