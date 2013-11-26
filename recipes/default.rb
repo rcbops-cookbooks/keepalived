@@ -66,14 +66,6 @@ service "keepalived" do
   action :enable
 end
 
-cookbook_file "/etc/keepalived/notify.sh" do
-  source "notify.sh"
-  mode 0700
-  group "root"
-  owner "root"
-  notifies :restart, "service[keepalived]", :immediately
-end
-
 node["keepalived"]["check_scripts"].each_pair do |name, script|
   keepalived_chkscript name do
     script script["script"]
@@ -99,6 +91,14 @@ node["keepalived"]["instances"].each_pair do |name, instance|
     end
     action :create
   end
+end
+
+cookbook_file "/etc/keepalived/notify.sh" do
+  source "notify.sh"
+  mode 0700
+  group "root"
+  owner "root"
+  notifies :restart, "service[keepalived]", :immediately
 end
 
 # Add an execute resource for keepalived providers to notify
