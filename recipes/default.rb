@@ -67,10 +67,11 @@ service "keepalived" do
 end
 
 cookbook_file "/etc/keepalived/notify.sh" do
-    source "notify.sh"
-    mode 0700
-    group "root"
-    owner "root"
+  source "notify.sh"
+  mode 0700
+  group "root"
+  owner "root"
+  notifies :restart, "service[keepalived]", :immediately
 end
 
 node["keepalived"]["check_scripts"].each_pair do |name, script|
