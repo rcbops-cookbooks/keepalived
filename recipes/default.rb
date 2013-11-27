@@ -98,6 +98,7 @@ node["keepalived"]["instances"].each_pair do |name, instance|
       auth_pass instance["auth_pass"]
     end
     action :create
+    notifies :restart, "service[keepalived]", :delayed
   end
 end
 
