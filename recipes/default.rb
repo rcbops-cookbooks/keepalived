@@ -52,6 +52,14 @@ sysctl "net.ipv4.ip_nonlocal_bind" do
   only_if { node["keepalived"]["shared_address"] }
 end
 
+cookbook_file "/etc/keepalived/notify.sh" do
+  source "notify.sh"
+  mode 0700
+  group "root"
+  owner "root"
+  notifies :restart, "service[keepalived]", :delayed
+end
+
 template "keepalived.conf" do
   path "/etc/keepalived/keepalived.conf"
   source "keepalived.conf.erb"
@@ -91,14 +99,6 @@ node["keepalived"]["instances"].each_pair do |name, instance|
     end
     action :create
   end
-end
-
-cookbook_file "/etc/keepalived/notify.sh" do
-  source "notify.sh"
-  mode 0700
-  group "root"
-  owner "root"
-  notifies :restart, "service[keepalived]", :immediately
 end
 
 # Add an execute resource for keepalived providers to notify
