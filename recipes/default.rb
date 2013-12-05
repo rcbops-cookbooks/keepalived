@@ -20,13 +20,24 @@
 include_recipe "sysctl::default"
 include_recipe "osops-utils::packages"
 
+platform_options=node["keepalived"]["platform"]
+
+# install netfilter things.
+platform_options["required_packages"].each do |pkg|
+  package pkg do
+    action node["osops"]["do_package_upgrades"] == true ? :upgrade : :install
+    options platform_options["package_options"]
+  end
+end
+
 package "keepalived" do
   action :install
 end
 
-execute "reload-keepalived" do
-  command "#{node['keepalived']['service_bin']} keepalived reload"
-  action :nothing
+# upgrade this package here to make sure we have the latest version that supports
+# network namespaces.
+package "iproute" do
+  action :upgrade
 end
 
 directory "/etc/keepalived/conf.d" do
@@ -41,13 +52,26 @@ sysctl "net.ipv4.ip_nonlocal_bind" do
   only_if { node["keepalived"]["shared_address"] }
 end
 
+cookbook_file "/etc/keepalived/notify.sh" do
+  source "notify.sh"
+  mode 0700
+  group "root"
+  owner "root"
+  notifies :restart, "service[keepalived]", :delayed
+end
+
 template "keepalived.conf" do
   path "/etc/keepalived/keepalived.conf"
   source "keepalived.conf.erb"
   owner "root"
   group "root"
   mode 0644
-  notifies :run, "execute[reload-keepalived]", :immediately
+  notifies :restart, "service[keepalived]", :immediately
+end
+
+service "keepalived" do
+  supports :restart => true, :status => true
+  action :enable
 end
 
 node["keepalived"]["check_scripts"].each_pair do |name, script|
@@ -74,10 +98,13 @@ node["keepalived"]["instances"].each_pair do |name, instance|
       auth_pass instance["auth_pass"]
     end
     action :create
+    notifies :restart, "service[keepalived]", :delayed
   end
 end
 
-service "keepalived" do
-  supports :restart => true, :status => true
-  action [:enable, :start]
+# Add an execute resource for keepalived providers to notify
+execute "reload-keepalived" do
+  command "#{node['keepalived']['service_bin']} keepalived reload"
+  action :nothing
 end
+

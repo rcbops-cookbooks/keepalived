@@ -6,7 +6,7 @@
 action :create do
   params = Hash.new()
   attributes = [
-    'notify_master', 'notify_backup', 'notify_fault', 'interface', 'virtual_router_id', 'state',
+    'notify_master', 'notify_backup', 'notify_fault', 'notify_stop', 'interface', 'virtual_router_id', 'state',
     'nopreempt', 'priority', 'virtual_ipaddress', 'advert_int', 'auth_type', 'auth_pass', 'track_script'
   ]
   attributes.each do |attribute|
