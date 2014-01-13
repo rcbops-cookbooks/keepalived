@@ -10,6 +10,12 @@ ns="vips"
 brif="vip-br"
 nsif="vip-ns"
 
+# VLAN interfaces use a "." separator
+# sysctl uses a "/" within the interface, and "." component delimeters.
+# these switch the "." for a "/", but don't touch the original variables
+SYSCTL_iface=${iface/.//}
+SYSCTL_brif=${brif/.//}
+
 # Idempotently make sure namespace/veth/sysctls are setup
 logger -t keepalived-notify-$action "Ensuring namespace, veth pair and sysctls"
 ip netns add $ns
@@ -22,8 +28,8 @@ ip netns exec $ns ip addr add 169.254.123.2/30 dev $nsif
 ip netns exec $ns sysctl net.ipv4.ip_forward=1
 ip netns exec $ns sysctl net.ipv4.conf.${nsif}.arp_notify=1
 
-sysctl net.ipv4.conf.${iface}.proxy_arp=1
-sysctl net.ipv4.conf.${brif}.proxy_arp=1
+sysctl net.ipv4.conf.${SYSCTL_iface}.proxy_arp=1
+sysctl net.ipv4.conf.${SYSCTL_brif}.proxy_arp=1
 sysctl net.ipv4.conf.lo.arp_ignore=1
 sysctl net.ipv4.conf.lo.arp_announce=2
 sysctl net.ipv4.ip_forward=1
