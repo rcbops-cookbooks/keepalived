@@ -13,8 +13,8 @@ nsif="vip-ns"
 # VLAN interfaces use a "." separator
 # sysctl uses a "/" within the interface, and "." component delimeters.
 # these switch the "." for a "/", but don't touch the original variables
-SYSCTL_iface=${iface/.//}
-SYSCTL_brif=${brif/.//}
+SYSCTL_iface=${iface//.//}
+SYSCTL_brif=${brif//.//}
 
 # Idempotently make sure namespace/veth/sysctls are setup
 logger -t keepalived-notify-$action "Ensuring namespace, veth pair and sysctls"
