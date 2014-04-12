@@ -75,5 +75,11 @@ case $action in
     logger -t keepalived-notify-$action "Deleting VIP NATs from namespace for $vip"
     ip netns exec $ns iptables -t nat -D PREROUTING -d $vip/32 -j DNAT --to-dest $src
     ip netns exec $ns iptables -t nat -D POSTROUTING -m conntrack --ctstate DNAT --ctorigdst $vip/32 -j SNAT --to-source $vip
+    ip netns exec $ns ip addr show dev $nsif |
+       awk -v count=0 '/inet / && !/169.254.123.2/  {count++} END { if(count==0){exit 42} }'
+    if [ $? -eq 42 ]
+      then
+        ip netns del $ns
+    fi    
     ;;
 esac
