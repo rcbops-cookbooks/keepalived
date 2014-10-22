@@ -4,6 +4,9 @@
 
 vrrp_instance <%= @name.upcase %> {
   interface <%= @params["interface"] %>
+  track_interface {
+    <%= @params["interface"] %>
+  }
   virtual_router_id <%= @params["virtual_router_id"] %>
   state <%= @params["state"] %>
   priority <%= @params["priority"] %>
